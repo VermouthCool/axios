@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdn.bootcdn.net/ajax/libs/axios/0.19.0/axios.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.5.0/jquery.min.js"></script>
+    <link href="https://cdn.bootcdn.net/ajax/libs/nprogress/0.2.0/nprogress.css" rel="stylesheet">
+    <script src="https://cdn.bootcdn.net/ajax/libs/nprogress/0.2.0/nprogress.js"></script>
+</head>
+<body>
+    <script>
+        //拦截器
+        //添加请求拦截器
+        /*
+        是真正在发请求前执行的回调函数
+        可以对发请求的配置做一些处理
+        在axios的源码内 采用unshift的方法头部插入将回调函数放进数组
+        */
+        axios.interceptors.request.use(function(config){
+            console.log('请求1');
+            return config; //必须返回config
+        })
+        axios.interceptors.request.use(function(config){
+            NProgress.start();
+            throw 2 //不会执行第一个拦截器 直接执行发送请求的失败的回调 请求2都不会输出 没有失败的回调
+            console.log('请求2');
+            return config;
+        })
+        //请求响应拦截器
+        /*
+        在得到响应后执行的回调函数（在外层响应函数之前）
+        对成功的请求成功的进行处理
+        用push方法
+        */
+        axios.interceptors.response.use(function(response){
+            console.log('响应1');
+            return response.data;
+        },function(error){
+            return Promise.reject(error);
+        })
+        axios.interceptors.response.use(function(data){
+            console.log('响应2');
+            NProgress.done();
+            return data;
+        },function(error){
+            return Promise.reject(error);
+        })
+        axios.get('http://localhost:8080',{
+            params:{
+                id:1
+            }
+        }).then(
+            value=>{
+                console.log(value);
+            },
+            error=>{
+                console.log(error);
+            }
+        )
+        //拦截器要起作用放前面
+    //  请求2
+    //  请求1
+    //  响应1
+    //  响应2
+    //  数据
+    //是通过串联then的方式的
+    </script>
+</body>
+</html>

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdn.bootcdn.net/ajax/libs/axios/0.19.0/axios.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.5.0/jquery.min.js"></script>
+</head>
+<body>
+    <script>
+        /*
+        1.axios.create(config)
+            根据配置创建一个新的axios
+        2.新的axios只是没有取消请求和批量发送请求的方法  其他所有的语法都是一致的
+        3.为什么要建立这个语法
+            项目内部分接口的配置不一样
+            创建两个不一样的axios 每个都有自己的新的配置
+            可以不传config  这样就会和axios的配置一样了
+        */
+       const instance = axios.create({
+            baseURL:'http://localhost:8080'
+        })
+        console.log(typeof instance); //是一个函数
+        instance.get('/',{
+            params:{
+
+            }
+        }).then()
+    </script>
+</body>
+</html>

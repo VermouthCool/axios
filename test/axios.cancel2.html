@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdn.bootcdn.net/ajax/libs/axios/0.19.0/axios.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.5.0/jquery.min.js"></script>
+</head>
+<body>
+    <script>
+        axios.defaults.baseURL='http://localhost:8080';
+        //取消是 取消已经发出去的请求  但是还是没有收到响应
+        let cancel;
+        axios.interceptors.request.use(config=>{
+            if(cancel){
+                cancel('强制取消');
+            }
+            config.cancelToken=new axios.CancelToken((c)=>{
+                cancel = c;
+            })
+            return config;
+        })
+        axios.interceptors.response.use(response=>{
+            cancel = null;
+            return response;
+        },error=>{
+            if(axios.isCancel(error)){
+                console.log('取消请求');
+                
+            }else{
+                cancel = null;
+                throw error;
+            }
+            return new Promise(()=>{}); //返回一个pending状态的promise 中断链
+        })
+        function test1(){
+            axios('/',{
+                method:'put',
+                cancelToken:new axios.CancelToken((c)=>{//此回调函数是同步执行的 传入用于取消请求的函数
+                    //c 可以取消特定的请求  是一个函数
+                    cancel = c;
+                })
+            }).then(
+                response=>{
+                    console.log(response.data+'1de');
+                },
+                error=>{
+                    console.log(error.message);
+                }
+            )
+        }
+        function test2(){
+            axios('/',{
+                method:'delete',
+                cancelToken:new axios.CancelToken((c)=>{//此回调函数是同步执行的 传入用于取消请求的函数
+                    cancel = c;
+                })
+            }).then(
+                response=>{
+                    console.log(response+'2de');
+                },
+                error=>{
+                    console.log(error.message);
+                }
+            )
+        }
+        test2();
+        console.log(cancel);
+        if(axios.isCancel(error)){
+            console.log(error.message);
+        }
+        if(cancel){
+            cancel('强制取消delete请求') //这里面的参数就是error.message  取消请求后立即执行失败的回调
+        }
+    </script>
+</body>
+</html>

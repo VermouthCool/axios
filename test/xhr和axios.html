@@ -4,35 +4,129 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <script src="https://cdn.bootcdn.net/ajax/libs/qs/6.9.4/qs.js"></script>
     <script src="https://cdn.bootcdn.net/ajax/libs/axios/0.19.0/axios.js"></script>
     <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.5.0/jquery.min.js"></script>
 </head>
 <body>
-    <button>发送get请求</button><br>
-    <button>发送post请求</button><br>
-    <button>发送put请求</button><br>
-    <button>发送delete请求</button>
+    <form action="http://192.168.1.112:8080">
+        名字： <input type="text"> <br>
+        年龄：<input type="text"> <br>
+        id：<input type="text"> <br>
+        <button type="button">提交</button>
+        <button type="button">查询</button>
+        <button type="button">删除</button>
+    </form>
     <script>
-        let button = new Array(4);
-        for(let a=0;a<4;a++){
-            button[a]=$('button')[a];                                              
-            button[a].onclick=function(){
-                test();
+        // let button = new Array(4);
+        // for(let a=0;a<4;a++){
+        //     button[a]=$('button')[a];                                              
+        //     button[a].onclick=function(){
+        //         test();
+        //     }
+        // }
+        // function test(){
+        //     axios({ //可以不写method 默认是get
+        //         method:'put',
+        //         url:'http://localhost:8080',
+        //         params:{
+        //             name:'jian', //这里的params是query参数 其实是 而且这里的参数必须要用对象给包着
+        //             age:18//get请求时使用
+        //         },
+        //         data:{
+
+        //         }
+        //     }).then(
+        //         response =>{
+        //             //data返回的是send的结果 status是200  statusText是OK
+        //             console.log(response.data,response.status,response.statusText);
+        //         },
+        //         error =>{
+        //             console.log(error.message);
+        //         }
+        //     )
+        // }
+        let input = $('input');
+        let button = $('button');
+        button[1].onclick=function(){
+            if(input[2].value){
+                // input.each((index,value)=>{
+                //     value.removeAttribute('required');
+                // })
+                input[2].removeAttribute('required');
+                axios({
+                    method:'get',
+                    url:'http://192.168.1.112:8080',
+                    params:{
+                        id:input[2].value,
+                        name:input[0].value,
+                        age:input[1].value
+                    }
+                }).then((response)=>{
+                    console.table(response.data);
+                })
+            }else{
+                // input.each((index,value)=>{
+                //     // input.eq(index).prop('required','true')
+                //     value.required = true;
+                // })
+                input[2].required = true;
             }
         }
-        function test(){
-            axios({
-                method:'post',
-                url:'http://localhost:8080',
-
-            }).then(
-                response =>{
-                    console.log(response.data,response.status,response.statusText);
-                },
-                error =>{
-                    console.log(error.message);
-                }
-            )
+        button[0].onclick=function(){
+           var id=input[2].value;
+           var name = input[0].value;
+            var age = input[1].value;
+            if(input[0].value&&input[1].value&&input[2].value){
+                input.each((index,value)=>{
+                    value.removeAttribute('required');
+                })
+                axios({
+                    // headers: {
+                    //     'Content-Type': 'application/x-www-form-urlencoded'
+                    // },
+                    method:'post',
+                    url:'http://localhost:8080',
+                    withCredential:true,
+                    // data:Qs.stringify({
+                    //     id:input[2].value,
+                    //     name:input[0].value,
+                    //     age:input[1].value
+                    // }),
+                    data:{
+                        id:input[2].value,
+                        name:input[0].value,
+                        age:input[1].value
+                    }
+                    //使用data时  需要使用qs和请求头
+                }).then((response)=>{
+                    console.log(response.data);
+                },error=>{
+                    console.log(error);
+                })
+            }else{
+                input.each((index,value)=>{
+                    // input.eq(index).prop('required','true')
+                    value.required = true;
+                })
+            }
+        }
+        button[2].onclick=function(){
+            if(input[2].value){
+                input[2].removeAttribute('required');
+                axios({
+                    method:'delete',
+                    url:'http://localhost:8080',
+                    params:{
+                        id:input[2].value
+                    }
+                }).then(response=>{
+                    console.log(response.data);
+                })
+            }else{
+                input[2].required=true;
+                console.log('请继续输入');
+            }
         }
     </script>
 </body>
